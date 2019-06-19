@@ -33,8 +33,9 @@ glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, -0.9f, -1.0f));
 glm::quat rotation = glm::quat(1, 0, 0, 0);
 
 GLuint textureAsteroid;
+GLuint textureHit;
 
-const int maxNumberOfPlanets = 5;
+const int maxNumberOfPlanets = 10;
 int numberOfPlanets = 0;
 
 const float planetRadius = 40.0;
@@ -46,24 +47,7 @@ int yPrev;
 
 float moveSpeed = 0.2f;
 
-void checkForHit() {
-	std::cout << "Angle: " << cameraAngle << ", Dir: " << cameraDir.x << ", x: " << cameraPos.x << ", y:" << cameraPos.y << std::endl;
-
-	for (int i = 0; i < numberOfPlanets; i++) {
-		std::cout << i + 1 << ": " << planetPositions[i].x << ", " << planetPositions[i].y;
-
-		// Can only shoot at the planet if it is at the same hight as a spaceship
-		// Planet has a height of around 1.0 (have to check exact number)
-		if (cameraPos.y > planetPositions[i].y - 1.0 && cameraPos.y < planetPositions[i].y + 1.0) {
-			std::cout << " GOOD Y";
-
-			// Here find how to calculate if spaceship is facing the planet
-
-		}
-
-		std::cout << std::endl;
-	}
-}
+void checkForHit();
 
 void keyboard(unsigned char key, int x, int y) {
 	
@@ -88,9 +72,9 @@ void mouse(int x, int y) {
 	int xDiff = xPrev - x;
 	int yDiff = yPrev - y;
 
-	//std::cout << "x: " << xDiff << ", y: " << yDiff << std::endl;
-
 	cameraAngle += xDiff * angleSpeed;
+
+	//cameraPos.y += yDiff * angleSpeed;
 
 	xPrev = x;
 	yPrev = y;
@@ -100,7 +84,6 @@ void generatePlanets() {
 	while (numberOfPlanets < maxNumberOfPlanets) {
 		planetPositions.push_back(glm::ballRand(planetRadius));
 		numberOfPlanets += 1;
-		//planetPositions[0].x > cameraPos.x
 	}
 }
 
@@ -150,6 +133,28 @@ void drawObjectTexture(obj::Model * model, glm::mat4 modelMatrix, GLuint texture
 
 	glUseProgram(0);
 }
+
+// ignore this for now - WORK IN PROGRESS
+
+void checkForHit() {
+	std::cout << "Angle: " << cameraAngle << ", Dir: " << cameraDir.x << ", x: " << cameraPos.x << ", y:" << cameraPos.y << std::endl;
+
+	for (int i = 0; i < numberOfPlanets; i++) {
+		std::cout << i + 1 << ": " << planetPositions[i].x << ", " << planetPositions[i].y;
+
+		// Can only shoot at the planet if it is at the same hight as a spaceship
+		// Planet has a height of around 1.0 (have to check exact number)
+		if (cameraPos.y > planetPositions[i].y - 1.0 && cameraPos.y < planetPositions[i].y + 1.0) {
+			std::cout << " GOOD Y";
+
+			// Here find how to calculate if spaceship is facing the planet
+
+		}
+
+		std::cout << std::endl;
+	}
+}
+
 void renderScene() {
 	//std::cout << "renderScene called now!" << std::endl;
 
@@ -183,6 +188,7 @@ void init() {
 	sphereModel = obj::loadModelFromFile("models/sphere.obj");
 	shipModel = obj::loadModelFromFile("models/spaceship.obj");
 	textureAsteroid = Core::LoadTexture("textures/asteroid.png");
+	textureHit = Core::LoadTexture("textures/asteroidHit.png");
 
 	generatePlanets();
 }
@@ -209,7 +215,7 @@ int main(int argc, char ** argv) {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(200, 200);
 	glutInitWindowSize(800, 800);
-	glutCreateWindow("OpenGL Pierwszy Program");
+	glutCreateWindow("Spaceship Simulator");
 	glewInit();
 
 	init();

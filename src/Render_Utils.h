@@ -2,8 +2,7 @@
 
 #include "objload.h"
 
-namespace Core
-{
+namespace Core {
 	// vertexArray - jednowymiarowa tablica zawierajaca wartosci opisujace pozycje kolejnych wierzcholkow w jednym ciagu (x1, y1, z1, w1, x2, y2, z2, w2, ...)
 	// numVertices - liczba wierzcholkow do narysowania
 	// elementSize - liczba wartosci opisujacych pojedynczy wierzcholek (np. 3 gdy wierzcholek opisany jest trojka (x, y, z))
@@ -14,14 +13,12 @@ namespace Core
 	void DrawVertexArrayIndexed(const float * vertexArray, const int * indexArray, int numIndexes, int elementSize);
 
 
-	struct VertexAttribute
-	{
+	struct VertexAttribute {
 		const void * Pointer;
 		int Size;
 	};
 
-	struct VertexData
-	{
+	struct VertexData {
 		static const int MAX_ATTRIBS = 8;
 		VertexAttribute Attribs[MAX_ATTRIBS];
 		int NumActiveAttribs;

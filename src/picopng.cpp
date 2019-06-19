@@ -1,7 +1,6 @@
 #include <vector>
 
-int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, size_t in_size, bool convert_to_rgba32)
-{
+int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width, unsigned long& image_height, const unsigned char* in_png, size_t in_size, bool convert_to_rgba32) {
   // picoPNG version 20101224
   // Copyright (c) 2005-2010 Lode Vandevenne
   //
@@ -33,11 +32,10 @@ int decodePNG(std::vector<unsigned char>& out_image, unsigned long& image_width,
   static const unsigned long DISTBASE[30] =  {1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577};
   static const unsigned long DISTEXTRA[30] = {0,0,0,0,1,1,2, 2, 3, 3, 4, 4, 5, 5,  6,  6,  7,  7,  8,  8,   9,   9,  10,  10,  11,  11,  12,   12,   13,   13};
   static const unsigned long CLCL[19] = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15}; //code length code lengths
-  struct Zlib //nested functions for zlib decompression
+  struct Zlib //nested functions for zlib decompression 
   {
     static unsigned long readBitFromStream(size_t& bitp, const unsigned char* bits) { unsigned long result = (bits[bitp >> 3] >> (bitp & 0x7)) & 1; bitp++; return result;}
-    static unsigned long readBitsFromStream(size_t& bitp, const unsigned char* bits, size_t nbits)
-    {
+    static unsigned long readBitsFromStream(size_t& bitp, const unsigned char* bits, size_t nbits)     {
       unsigned long result = 0;
       for(size_t i = 0; i < nbits; i++) result += (readBitFromStream(bitp, bits)) << i;
       return result;

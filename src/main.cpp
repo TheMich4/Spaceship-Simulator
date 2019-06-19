@@ -5,6 +5,8 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <ctime>
+#include <cstdlib>
 
 #include "Shader_Loader.h"
 #include "Render_Utils.h"
@@ -32,16 +34,19 @@ glm::quat rotation = glm::quat(1, 0, 0, 0);
 
 GLuint textureAsteroid;
 
+const int maxNumberOfPlanets = 100;
+int numberOfPlanets = 0;
+
+std::vector<glm::vec3> planetPositions;
+
 int xPrev;
 int yPrev;
 
-void keyboard(unsigned char key, int x, int y)
-{
+void keyboard(unsigned char key, int x, int y) {
 	
 	float angleSpeed = 0.1f;
 	float moveSpeed = 0.1f;
-	switch(key)
-	{
+	switch(key) {
 	case 'z': cameraAngle -= angleSpeed; break;
 	case 'x': cameraAngle += angleSpeed; break;
 	case 'w': cameraPos += cameraDir * moveSpeed; break;
@@ -51,8 +56,7 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
-void mouse(int x, int y)
-{
+void mouse(int x, int y) {
 	float angleSpeed = 0.015f;
 	float moveSpeed = 0.015f;
 
@@ -67,8 +71,19 @@ void mouse(int x, int y)
 	yPrev = y;
 }
 
-glm::mat4 createCameraMatrix()
-{
+void generatePlanets() {
+	while (numberOfPlanets < maxNumberOfPlanets) {
+		planetPositions.push_back(glm::ballRand(40.0));
+		numberOfPlanets += 1;
+	}
+}
+
+void removeRandomPlanet() {
+	int r = (rand() % numberOfPlanets);
+	planetPositions.erase(planetPositions.begin() + r);
+}
+
+glm::mat4 createCameraMatrix() {
 	cameraDir = glm::vec3(cosf(cameraAngle - glm::radians(90.0f)), 0.0f, sinf(cameraAngle - glm::radians(90.0f)));
 	glm::vec3 up = glm::vec3(0, 1, 0);
 	cameraSide = glm::cross(cameraDir, up);
@@ -76,8 +91,7 @@ glm::mat4 createCameraMatrix()
 	return Core::createViewMatrix(cameraPos, cameraDir, up);
 }
 
-void drawObjectColor(obj::Model * model, glm::mat4 modelMatrix, glm::vec3 color)
-{
+void drawObjectColor(obj::Model * model, glm::mat4 modelMatrix, glm::vec3 color) {
 	GLuint program = programColor;
 
 	glUseProgram(program);
@@ -94,8 +108,7 @@ void drawObjectColor(obj::Model * model, glm::mat4 modelMatrix, glm::vec3 color)
 	glUseProgram(0);
 }
 
-void drawObjectTexture(obj::Model * model, glm::mat4 modelMatrix, GLuint textureId)
-{
+void drawObjectTexture(obj::Model * model, glm::mat4 modelMatrix, GLuint textureId) {
 	GLuint program = programTexture;
 
 	glUseProgram(program);
@@ -111,8 +124,9 @@ void drawObjectTexture(obj::Model * model, glm::mat4 modelMatrix, GLuint texture
 
 	glUseProgram(0);
 }
-void renderScene()
-{
+void renderScene() {
+	//std::cout << "renderScene called now!" << std::endl;
+
 	// Update of camera and perspective matrices
 	cameraMatrix = createCameraMatrix();
 	perspectiveMatrix = Core::createPerspectiveMatrix();
@@ -124,13 +138,16 @@ void renderScene()
 	glm::mat4 shipModelMatrix = glm::translate(cameraPos + cameraDir * 0.5f) * glm::rotate(-cameraAngle, glm::vec3(0,1,0)) * shipInitialTransformation;
 	drawObjectColor(&shipModel, shipModelMatrix, glm::vec3(0.6f));
 
-	drawObjectTexture(&sphereModel, glm::translate(glm::vec3(0,0,0)), textureAsteroid);
+	for (int i = 0; i < numberOfPlanets; i++) {
+		drawObjectTexture(&sphereModel, glm::translate(planetPositions[i]), textureAsteroid);
+	}
 
 	glutSwapBuffers();
 }
 
-void init()
-{
+void init() {
+	std::cout << "init called now!" << std::endl;
+
 	srand(time(0));
 	glEnable(GL_DEPTH_TEST);
 	programColor = shaderLoader.CreateProgram("shaders/shader_color.vert", "shaders/shader_color.frag");
@@ -138,21 +155,28 @@ void init()
 	sphereModel = obj::loadModelFromFile("models/sphere.obj");
 	shipModel = obj::loadModelFromFile("models/spaceship.obj");
 	textureAsteroid = Core::LoadTexture("textures/asteroid.png");
+
+	generatePlanets();
 }
 
-void shutdown()
-{
+void shutdown() {
+	std::cout << "shutdown called now!" << std::endl;
+
 	shaderLoader.DeleteProgram(programColor);
 	shaderLoader.DeleteProgram(programTexture);
 }
 
-void idle()
-{
+void idle() {
+	//std::cout << "idle called now!" << std::endl;
+
 	glutPostRedisplay();
 }
 
-int main(int argc, char ** argv)
-{
+int main(int argc, char ** argv) {
+	std::cout << "main called now!" << std::endl;
+
+	srand(time(0));
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(200, 200);

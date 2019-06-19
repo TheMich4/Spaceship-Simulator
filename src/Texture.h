@@ -3,8 +3,7 @@
 #include "glew.h"
 #include "freeglut.h"
 
-namespace Core
-{
+namespace Core {
 	GLuint LoadTexture(const char * filepath);
 
 	// textureID - identyfikator tekstury otrzymany z funkcji LoadTexture

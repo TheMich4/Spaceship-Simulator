@@ -3,8 +3,7 @@
 #include "glm.hpp"
 #include "ext.hpp"
 
-namespace Core
-{
+namespace Core {
 	glm::mat4 createPerspectiveMatrix(float zNear = 0.1f, float zFar = 100.0f);
 
 	// position - pozycja kamery

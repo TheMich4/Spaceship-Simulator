@@ -8,14 +8,12 @@ using namespace Core;
 Shader_Loader::Shader_Loader(void){}
 Shader_Loader::~Shader_Loader(void){}
 
-std::string Shader_Loader::ReadShader(char *filename)
-{
+std::string Shader_Loader::ReadShader(char *filename) {
 
 	std::string shaderCode;
 	std::ifstream file(filename, std::ios::in);
 
-	if (!file.good())
-	{
+	if (!file.good()) 	{
 		std::cout << "Can't read file " << filename << std::endl;
 		std::terminate();
 	}
@@ -28,9 +26,7 @@ std::string Shader_Loader::ReadShader(char *filename)
 	return shaderCode;
 }
 
-GLuint Shader_Loader::CreateShader(GLenum shaderType, std::string
-	source, char* shaderName)
-{
+GLuint Shader_Loader::CreateShader(GLenum shaderType, std::string source, char* shaderName) {
 
 	int compile_result = 0;
 
@@ -43,8 +39,7 @@ GLuint Shader_Loader::CreateShader(GLenum shaderType, std::string
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_result);
 
 	//sprawdz bledy
-	if (compile_result == GL_FALSE)
-	{
+	if (compile_result == GL_FALSE) {
 
 		int info_log_length = 0;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
@@ -57,9 +52,7 @@ GLuint Shader_Loader::CreateShader(GLenum shaderType, std::string
 	return shader;
 }
 
-GLuint Shader_Loader::CreateProgram(char* vertexShaderFilename,
-	char* fragmentShaderFilename)
-{
+GLuint Shader_Loader::CreateProgram(char* vertexShaderFilename, char* fragmentShaderFilename) {
 
 	//wczytaj shadery
 	std::string vertex_shader_code = ReadShader(vertexShaderFilename);
@@ -77,8 +70,7 @@ GLuint Shader_Loader::CreateProgram(char* vertexShaderFilename,
 	glLinkProgram(program);
 	glGetProgramiv(program, GL_LINK_STATUS, &link_result);
 	//sprawdz bledy w linkerze
-	if (link_result == GL_FALSE)
-	{
+	if (link_result == GL_FALSE) {
 
 		int info_log_length = 0;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_length);
@@ -96,7 +88,6 @@ GLuint Shader_Loader::CreateProgram(char* vertexShaderFilename,
 	return program;
 }
 
-void Shader_Loader::DeleteProgram( GLuint program )
-{
+void Shader_Loader::DeleteProgram( GLuint program ) {
 	glDeleteProgram(program);
 }

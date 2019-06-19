@@ -34,18 +34,40 @@ glm::quat rotation = glm::quat(1, 0, 0, 0);
 
 GLuint textureAsteroid;
 
-const int maxNumberOfPlanets = 100;
+const int maxNumberOfPlanets = 5;
 int numberOfPlanets = 0;
+
+const float planetRadius = 40.0;
 
 std::vector<glm::vec3> planetPositions;
 
 int xPrev;
 int yPrev;
 
+float moveSpeed = 0.2f;
+
+void checkForHit() {
+	std::cout << "Angle: " << cameraAngle << ", Dir: " << cameraDir.x << ", x: " << cameraPos.x << ", y:" << cameraPos.y << std::endl;
+
+	for (int i = 0; i < numberOfPlanets; i++) {
+		std::cout << i + 1 << ": " << planetPositions[i].x << ", " << planetPositions[i].y;
+
+		// Can only shoot at the planet if it is at the same hight as a spaceship
+		// Planet has a height of around 1.0 (have to check exact number)
+		if (cameraPos.y > planetPositions[i].y - 1.0 && cameraPos.y < planetPositions[i].y + 1.0) {
+			std::cout << " GOOD Y";
+
+			// Here find how to calculate if spaceship is facing the planet
+
+		}
+
+		std::cout << std::endl;
+	}
+}
+
 void keyboard(unsigned char key, int x, int y) {
 	
 	float angleSpeed = 0.1f;
-	float moveSpeed = 0.1f;
 	switch(key) {
 	case 'z': cameraAngle -= angleSpeed; break;
 	case 'x': cameraAngle += angleSpeed; break;
@@ -53,17 +75,20 @@ void keyboard(unsigned char key, int x, int y) {
 	case 's': cameraPos -= cameraDir * moveSpeed; break;
 	case 'd': cameraPos += cameraSide * moveSpeed; break;
 	case 'a': cameraPos -= cameraSide * moveSpeed; break;
+	case 'e': 
+		std::cout << "E!" << std::endl;
+		checkForHit();
+		break;
 	}
 }
 
 void mouse(int x, int y) {
 	float angleSpeed = 0.015f;
-	float moveSpeed = 0.015f;
 
 	int xDiff = xPrev - x;
 	int yDiff = yPrev - y;
 
-	std::cout << "x: " << xDiff << ", y: " << yDiff << std::endl;
+	//std::cout << "x: " << xDiff << ", y: " << yDiff << std::endl;
 
 	cameraAngle += xDiff * angleSpeed;
 
@@ -73,8 +98,9 @@ void mouse(int x, int y) {
 
 void generatePlanets() {
 	while (numberOfPlanets < maxNumberOfPlanets) {
-		planetPositions.push_back(glm::ballRand(40.0));
+		planetPositions.push_back(glm::ballRand(planetRadius));
 		numberOfPlanets += 1;
+		//planetPositions[0].x > cameraPos.x
 	}
 }
 
@@ -143,6 +169,8 @@ void renderScene() {
 	}
 
 	glutSwapBuffers();
+
+	//std::cout << "Pos: " << planetPositions[numberOfPlanets - 1].x << ", Cam: " << cameraPos.x << std::endl;
 }
 
 void init() {

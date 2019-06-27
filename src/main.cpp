@@ -35,7 +35,7 @@ glm::quat rotation = glm::quat(1, 0, 0, 0);
 GLuint textureAsteroid;
 GLuint textureHit;
 
-const int maxNumberOfPlanets = 10;
+const int maxNumberOfPlanets = 100;
 int numberOfPlanets = 0;
 
 const float planetRadius = 40.0;
@@ -47,10 +47,12 @@ int yPrev;
 
 float moveSpeed = 0.2f;
 
+void renderScene();
 void checkForHit();
+void shoot();
 
 void keyboard(unsigned char key, int x, int y) {
-	
+
 	float angleSpeed = 0.1f;
 	switch(key) {
 	case 'z': cameraAngle -= angleSpeed; break;
@@ -61,13 +63,13 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'a': cameraPos -= cameraSide * moveSpeed; break;
 	case 'e': 
 		std::cout << "E!" << std::endl;
-		checkForHit();
+		shoot();
 		break;
 	}
 }
 
 void mouse(int x, int y) {
-	float angleSpeed = 0.015f;
+	float angleSpeed = 0.01f;
 
 	int xDiff = xPrev - x;
 	int yDiff = yPrev - y;
@@ -82,14 +84,39 @@ void mouse(int x, int y) {
 
 void generatePlanets() {
 	while (numberOfPlanets < maxNumberOfPlanets) {
-		planetPositions.push_back(glm::ballRand(planetRadius));
+		glm::vec3 planet = glm::ballRand(planetRadius);
+		
+		if (planet == cameraPos) {
+			continue;
+		}
+		
+		if (planet.y < -5 || planet.y > 5) {
+			continue;
+		}
+
+		planetPositions.push_back(planet);
 		numberOfPlanets += 1;
 	}
 }
 
-void removeRandomPlanet() {
-	int r = (rand() % numberOfPlanets);
-	planetPositions.erase(planetPositions.begin() + r);
+void checkForColision() {
+	int size = 1.9;
+
+	for (int i = 0; i < maxNumberOfPlanets; i++) {
+		// check for colision on x axis
+		if (cameraPos.x > planetPositions[i].x - size && cameraPos.x < planetPositions[i].x + size) {
+			// check for colisions on y axis
+			if (cameraPos.y > planetPositions[i].y - size && cameraPos.y < planetPositions[i].y + size) {
+				// check for colisions on z axis
+				if (cameraPos.z > planetPositions[i].z - size && cameraPos.z < planetPositions[i].z + size) {
+					std::cout << "colision with " << i << std::endl;
+
+					// have to figure out how to remove a planet form the screen
+					// and how to calculate colission based on model position rather than camera position
+				}
+			}
+		}
+	}
 }
 
 glm::mat4 createCameraMatrix() {
@@ -137,26 +164,36 @@ void drawObjectTexture(obj::Model * model, glm::mat4 modelMatrix, GLuint texture
 // ignore this for now - WORK IN PROGRESS
 
 void checkForHit() {
-	std::cout << "Angle: " << cameraAngle << ", Dir: " << cameraDir.x << ", x: " << cameraPos.x << ", y:" << cameraPos.y << std::endl;
+	//std::cout << "Angle: " << cameraAngle << ", Dir: " << cameraDir.x << ", x: " << cameraPos.x << ", y:" << cameraPos.y << std::endl";
 
 	for (int i = 0; i < numberOfPlanets; i++) {
-		std::cout << i + 1 << ": " << planetPositions[i].x << ", " << planetPositions[i].y;
+		//std::cout << i + 1 << ": " << planetPositions[i].x << ", " << planetPositions[i].y;
 
 		// Can only shoot at the planet if it is at the same hight as a spaceship
 		// Planet has a height of around 1.0 (have to check exact number)
 		if (cameraPos.y > planetPositions[i].y - 1.0 && cameraPos.y < planetPositions[i].y + 1.0) {
-			std::cout << " GOOD Y";
 
 			// Here find how to calculate if spaceship is facing the planet
 
+			std::cout << "Hit: " << i << std::endl;
+
+			glm::vec3 pos = planetPositions[i];
+			pos.x += 1;
+			pos.y += 1;
+
+			drawObjectTexture(&sphereModel, glm::translate(pos), textureHit);
 		}
 
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 }
 
+void shoot() {
+	checkForHit();
+}
+
 void renderScene() {
-	//std::cout << "renderScene called now!" << std::endl;
+	std::cout << "renderScene called now!" << std::endl;
 
 	// Update of camera and perspective matrices
 	cameraMatrix = createCameraMatrix();
@@ -167,15 +204,16 @@ void renderScene() {
 
 	glm::mat4 shipInitialTransformation = glm::translate(glm::vec3(0,-0.25f,0)) * glm::rotate(glm::radians(180.0f), glm::vec3(0,1,0)) * glm::scale(glm::vec3(0.25f));
 	glm::mat4 shipModelMatrix = glm::translate(cameraPos + cameraDir * 0.5f) * glm::rotate(-cameraAngle, glm::vec3(0,1,0)) * shipInitialTransformation;
-	drawObjectColor(&shipModel, shipModelMatrix, glm::vec3(0.6f));
+	drawObjectColor(&shipModel, shipModelMatrix, glm::vec3(1.0f));
 
 	for (int i = 0; i < numberOfPlanets; i++) {
 		drawObjectTexture(&sphereModel, glm::translate(planetPositions[i]), textureAsteroid);
 	}
 
-	glutSwapBuffers();
+	// check if after spaceship is coliding with any planet
+	checkForColision();
 
-	//std::cout << "Pos: " << planetPositions[numberOfPlanets - 1].x << ", Cam: " << cameraPos.x << std::endl;
+	glutSwapBuffers();
 }
 
 void init() {
